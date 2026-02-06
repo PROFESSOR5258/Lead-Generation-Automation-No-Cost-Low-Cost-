@@ -1,0 +1,655 @@
+{
+  "name": "Lead Generation Automation (No-Cost / Low-Cost)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": " GOOGLE MAP SCRAPER\n",
+        "height": 384,
+        "width": 1888,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        208,
+        2896
+      ],
+      "typeVersion": 1,
+      "id": "900d705e-8f87-4e44-b99e-a49bb4954aab",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "path": "f2c3f8b2-f8e5-4f6e-a421-55e62c4854a4",
+        "formTitle": "Lead Generation System",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Target Industries / Search Keyword"
+            },
+            {
+              "fieldLabel": "Target Locations"
+            },
+            {
+              "fieldLabel": "Lead Count",
+              "fieldType": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "28202773-469c-4952-a984-3338f6d131bf",
+      "name": "FORM SUBMISSION",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2,
+      "position": [
+        528,
+        3024
+      ],
+      "webhookId": "f2c3f8b2-f8e5-4f6e-a421-55e62c4854a4",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const industry = $json['Target Industries'];\nconst location = $json['Target Locations'];\nconst limit = Number($json['Lead Count'] || 10);\n\n// Increment page safely\nconst page = ($json.page || 0) + 1;\n\nreturn [\n  {\n    json: {\n      q: `${industry} manufacturer in ${location}`,\n      page,\n      limit,\n      leads: $json.leads || []\n    }\n  }\n];\n"
+      },
+      "id": "e72e3d6d-6cf1-41bb-bb84-816933c8cdde",
+      "name": "BUILDING QUERY",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        752,
+        3024
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// const places = items[0].json.places || [];\n\n// return places.map(p => ({\n//   json: {\n//     Name: p.title || \"\",\n//     Address: p.address || \"\",\n//     // Phone: p.phoneNumber || \"\",\n//     Phone: (p.phoneNumber || \"\").replace(/^\\+/, \"\"),\n//     Website: p.website || \"\"\n//   }\n// }));\n\nconst limit = Number($input.first().json.limit || $('FORM SUBMISSION').first().json['Lead Count']);\n\nconst places = items[0].json.places || [];\n\nconst sliced = places.slice(0, limit);\n\nreturn sliced.map(p => ({\n  json: {\n    Name: p.title || \"\",\n    Address: p.address || \"\",\n    Phone: (p.phoneNumber || \"\").replace(/^\\+/, \"\"),\n    Website: p.website || \"\"\n  }\n}));\n\n\n\n"
+      },
+      "id": "8a17cfdc-70b7-4191-92ec-c4e99f14305a",
+      "name": "COLLECT LEADS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        3024
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1mYJU4ldtWdmpBh9sgJkWa6AjZ7eWbuKQIwxUJGBxrDo",
+          "mode": "list",
+          "cachedResultName": "MAP LEAD DATA",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mYJU4ldtWdmpBh9sgJkWa6AjZ7eWbuKQIwxUJGBxrDo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mYJU4ldtWdmpBh9sgJkWa6AjZ7eWbuKQIwxUJGBxrDo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Address": "={{ $json.Address }}",
+            "website": "={{ $json.Website }}",
+            "phone": "={{ $json.Phone }}",
+            "Name": "={{ $json.Name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1424,
+        3024
+      ],
+      "id": "a489a7fd-7dc2-4c07-abfd-0d1373520477",
+      "name": "MAP LEAD DATA",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TdhYGOiE5m69sLeC",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://google.serper.dev/maps",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{$json.q}}"
+            },
+            {
+              "name": "num",
+              "value": "=20"
+            },
+            {
+              "name": "page",
+              "value": "={{ $json.page || 1 }}"
+            },
+            {
+              "name": "autocorrect",
+              "value": "true"
+            },
+            {
+              "name": "hl",
+              "value": "en"
+            },
+            {
+              "name": "gl",
+              "value": "in"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "=0ba01ee421cad28684f862d51169c240d7054c57"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d4a5bbce-35c1-486e-9a51-c804c43969fa",
+      "name": "MAPS SERPER",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        976,
+        3024
+      ]
+    },
+    {
+      "parameters": {
+        "path": "4098a681-4b83-46f2-9aca-b3b28c7fe151",
+        "formTitle": "Lead Generation System",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Client Website"
+            },
+            {
+              "fieldLabel": "Product"
+            },
+            {
+              "fieldLabel": "Target Industries",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Search Keyword",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Target Locations",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Designation"
+            },
+            {
+              "fieldLabel": "Lead Count",
+              "fieldType": "number",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b73d5090-8745-4d4b-9ff5-6fa6418fa391",
+      "name": "FORM SUBMISSION5",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2,
+      "position": [
+        2576,
+        2992
+      ],
+      "webhookId": "4098a681-4b83-46f2-9aca-b3b28c7fe151"
+    },
+    {
+      "parameters": {
+        "jsCode": "const product = $json['Product'];\nconst searchKeyword = $json['Search Keyword'];\nconst industry = $json['Target Industries'];\nconst location = $json['Target Locations'];\nconst limit = Number($('FORM SUBMISSION5').first().json['Lead Count'] || 10);\n\n// Keep page fixed (safe for Maps)\nconst page = 1;\n\n// Static query including search keyword\n// const q = `${searchKeyword} ${industry} company in ${location}`;\n\nconst q = $input.first().json.primary_query\n\nreturn [\n  {\n    json: {\n      q,\n      page,\n      limit\n    }\n  }\n];\n"
+      },
+      "id": "e1d19a1b-02e0-4697-9a0f-05c4ae4435ea",
+      "name": "BUILDING QUERY5",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3344,
+        2992
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// const places = items[0].json.places || [];\n\n// return places.map(p => ({\n//   json: {\n//     Name: p.title || \"\",\n//     Address: p.address || \"\",\n//     // Phone: p.phoneNumber || \"\",\n//     Phone: (p.phoneNumber || \"\").replace(/^\\+/, \"\"),\n//     Website: p.website || \"\"\n//   }\n// }));\n\nconst limit = Number($input.first().json.limit || $('FORM SUBMISSION5').first().json['Lead Count']);\n\nconst places = items[0].json.places || [];\n\nconst sliced = places.slice(0, limit);\n\nreturn sliced.map(p => ({\n  json: {\n    Name: p.title || \"\",\n    Address: p.address || \"\",\n    Phone: (p.phoneNumber || \"\").replace(/^\\+/, \"\"),\n    Website: p.website || \"\"\n  }\n}));\n\n\n\n"
+      },
+      "id": "3861504d-90f6-4152-a964-f64eb8b6ab26",
+      "name": "COLLECT LEADS5",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3792,
+        2992
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1mYJU4ldtWdmpBh9sgJkWa6AjZ7eWbuKQIwxUJGBxrDo",
+          "mode": "list",
+          "cachedResultName": "MAP LEAD DATA",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mYJU4ldtWdmpBh9sgJkWa6AjZ7eWbuKQIwxUJGBxrDo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mYJU4ldtWdmpBh9sgJkWa6AjZ7eWbuKQIwxUJGBxrDo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Address": "={{ $json.Address }}",
+            "website": "={{ $json.Website }}",
+            "phone": "={{ $json.Phone }}",
+            "Name": "={{ $json.Name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "website",
+              "displayName": "website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4016,
+        2992
+      ],
+      "id": "0d619ecb-0022-4b88-b135-f98d36201e00",
+      "name": "MAP LEAD DATA1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TdhYGOiE5m69sLeC",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://google.serper.dev/maps",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{$json.q}}"
+            },
+            {
+              "name": "num",
+              "value": "=20"
+            },
+            {
+              "name": "page",
+              "value": "={{ $json.page || 1 }}"
+            },
+            {
+              "name": "autocorrect",
+              "value": "true"
+            },
+            {
+              "name": "hl",
+              "value": "en"
+            },
+            {
+              "name": "gl",
+              "value": "in"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "=0ba01ee421cad28684f862d51169c240d7054c57"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c9c7e540-4241-4f03-9275-ace35f73341b",
+      "name": "MAPS SERPER1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        3568,
+        2992
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Client Website: {{ $json['Client Website'] }}\nClient Product / Service: {{ $json.Product }}\nApplication / Use Case: \nPreferred Designation (if any): {{ $json.Designation }}\nTarget Location: {{ $json['Target Locations'] }}\n\nTask:\nAnalyze the above information and generate optimized Google Serper search queries for B2B lead generation.\nFocus on discovering real companies that are potential buyers or partners for the client.\n",
+        "options": {
+          "systemMessage": "=Role:\nYou are a Lead Generation Query Architect specialized in B2B sales intelligence.\n\nPrimary Objective:\nYour task is to analyze:\n\n- Client Website (if provided)\n- Client Product / Service\n- Optional industry, application, and designation hints\n\n…and generate high-precision Google search queries optimized for Google Serper\n(Maps & Search) to identify REAL DECISION-MAKING BUYER BUSINESSES,\nnot competitors, blogs, directories, or job portals.\n\nCRITICAL RULE (MOST IMPORTANT):\nYou must ALWAYS generate BUYER-SIDE queries.\nNEVER generate queries that describe the client’s own service, role, or offering.\n- DO NOT search for marketing agencies, consultants, SEO firms, lead generation companies, or outsourcing providers.\nALWAYS search for end-user businesses (manufacturers, IT companies, real estate firms, SaaS companies, distributors, enterprises).\n\n\nAvoid generic phrasing; always vary industry, activity, and location modifiers\nYOU SHOULD ALWAYS GENERATE DYNAMIC AND UNIQUE QUERIES.\nDO NOT repeat queries across runs.\nAlways crave NEW, unseen data.\n\nUNDERSTAND THE CLIENT:\n\nInfer from the client’s website and product:\n- What problem the client solves\n- Where the solution is used\n- Which industries REQUIRE this solution\n- Which companies BUY this solution\n\n\nConvert:\nClient Product → Usage → Buyer Industry → Buyer Company Type\n\nTHUMB RULE:\n-Find companies that should need BUYER PRODUCT / SERVICES\n\nExample:\nClient sells “IT Services”\n→ Used for digital operations\n→ Required by non-IT companies\n→ Buyers = enterprises, SMEs, manufacturing firms, startups\n\n\nTARGET CUSTOMER (BUYER) DEFINITION:\n\nBUYERS are companies that:\n- Consume the service/product\n- Operate businesses needing that solution\n- Have decision-makers (Founder, Director, IT Head, Ops Head)\n\nBUYERS ARE:\n- Enterprises\n- SMEs\n- Manufacturing plants\n- Retail chains\n- Logistics firms\n- Financial institutions\n- Non-IT companies (for IT services)\n\nBUYERS ARE NOT:\n- Companies selling the same service\n- Agencies, resellers, competitors\n- Freelancers or individuals\n\nRULE:\n- Industries must be logically dependent on the client’s product usage,\nnot generic business categories\n\n\nQUERY BUILDING RULES (MANDATORY):\n\nQueries MUST:\n- Describe BUYER COMPANIES\n- Indicate operational or business activity\n- Be location-aware\n- Be commercial and B2B-focused\n- Work with Google Maps or Google Search\n- Every query MUST include at least one geographic modifier\nGenerate exactly [Execute previous nodes for preview] distinct search queries.\nDo NOT generate more or fewer queries.\n(city, state, industrial zone, region)\n\n\nSTRICTLY AVOID (SELLER BIAS):\nmanufacturer | supplier | service provider | agency | OEM | consultant\n\nSTRICTLY AVOID (SELLER CONTEXT):\nmanufacturer of <client product>\nsupplier of <client product>\nOEM of <client product>\n\nPREFER (BUYER INTENT):\ncompany | enterprise | firm | business | factory | plant | group | SME\n\nAvoid vague terms:\nbest | top | guide | how to\n\nFILTERING LOGIC:\n\nEXCLUDE:\n- blogs, news, articles\n- job portals (naukri, indeed, glassdoor)\n- reviews, reports, rankings\n- marketplaces unless explicitly required\n\nINCLUDE:\n- Pvt Ltd / Ltd / LLP / Company\n- Businesses with address & phone\n- Companies likely to have decision-makers\n\nDESIGNATION AWARENESS\n\nIf designations are provided:\n- Bias queries toward companies likely to have those roles\n- Do NOT search for people directly unless asked\n\nOUTPUT FORMAT (STRICT JSON ONLY):\n\n{\n  \"primary_query\": \"\",\n  \"alternate_queries\": [],\n  \"maps_query\": \"\",\n  \"search_intent\": \"\",\n  \"exclusion_terms\": \"\"\n}\n\nRULES:\n- Output valid JSON only\n- No explanations outside JSON\n- Do not repeat phrases across queries\n- All Queries MUST indicate business identity, not operational activity.\n- No informational or hiring queries\n\nALTERNATE QUERY CONTROL (STRICT)\n\nThe number of items in \"alternate_queries\"\nMUST be exactly:\n\nmax(0, [Execute previous nodes for preview])\n\nRules:\n- If [Execute previous nodes for preview] ≤ 1 → \"alternate_queries\" MUST be []\n- If [Execute previous nodes for preview] = 3 → \"alternate_queries\" MUST contain 1 item\n- If [Execute previous nodes for preview] = 4 → \"alternate_queries\" MUST contain 2 items\n- NEVER exceed this count\n- Generating extra alternate queries is INVALID OUTPUT\n\nCORRECT EXAMPLE (MARKETING COMPANY LOOKING FOR CLIENTS):\nInput\n\nMarketing Service Provider\nTarget Location: Pune\n Correct Output\n{\n  \"primary_query\": \"private limited manufacturing enterprises operating production facilities in Pune industrial zones\",\n  \"alternate_queries\": [\n    \"non-IT enterprises with in-house IT teams in Pune\",\n    \"real estate development companies in Pune\",\n    \"logistics and warehousing companies in Pune\",\n    \"SaaS companies headquartered in Pune\"\n  ],\n  \"maps_query\": \"industrial manufacturing plants Pune industrial area\",\n  \"search_intent\": \"Identify end-user businesses likely to require marketing services\",\n  \"exclusion_terms\": \"marketing|seo|agency|consultant|outsourcing|lead generation|job|career|directory|listing|association|training|\ninstitute|dealer|distributor|tender|government\"\n\n}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2752,
+        2992
+      ],
+      "id": "fd7a5462-2ec7-4fcd-a194-f3fc2c0934e2",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2752,
+        3184
+      ],
+      "id": "a98f915a-a637-40ad-b3b0-2fa7462ff83e",
+      "name": "OpenAI Chat Model1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Read raw output string\nconst raw = items[0].json.output;\n\n// 2. Parse JSON string safely\nconst parsed = JSON.parse(raw);\n\n// 3. Separate fields\nreturn [\n  {\n    json: {\n      primary_query: parsed.primary_query,\n      alternate_queries: parsed.alternate_queries,\n      maps_query: parsed.maps_query,\n      search_intent: parsed.search_intent,\n      exclusion_terms: parsed.exclusion_terms\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3104,
+        2992
+      ],
+      "id": "b3919cdc-4573-4867-8adb-56b232d2f701",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "content": "DEEP RESEARCH AND LEAD GENERATION TOOL\n",
+        "height": 528,
+        "width": 1904
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2480,
+        2832
+      ],
+      "typeVersion": 1,
+      "id": "08d396aa-75d0-48a3-81e4-ae47a4ced610",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {
+    "FORM SUBMISSION5": [
+      {
+        "json": {
+          "Client Website": "https://suyomengineering.com/",
+          "Product": "Storage Tanks",
+          "Target Industries": "Construction",
+          "Search Keyword": "Engineering",
+          "Target Locations": "Pune",
+          "Designation": "Sales Engineer",
+          "Lead Count": 20,
+          "submittedAt": "2025-12-30T11:26:50.590Z",
+          "formMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "FORM SUBMISSION": {
+      "main": [
+        [
+          {
+            "node": "BUILDING QUERY",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BUILDING QUERY": {
+      "main": [
+        [
+          {
+            "node": "MAPS SERPER",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "COLLECT LEADS": {
+      "main": [
+        [
+          {
+            "node": "MAP LEAD DATA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MAPS SERPER": {
+      "main": [
+        [
+          {
+            "node": "COLLECT LEADS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FORM SUBMISSION5": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BUILDING QUERY5": {
+      "main": [
+        [
+          {
+            "node": "MAPS SERPER1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "COLLECT LEADS5": {
+      "main": [
+        [
+          {
+            "node": "MAP LEAD DATA1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MAPS SERPER1": {
+      "main": [
+        [
+          {
+            "node": "COLLECT LEADS5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "BUILDING QUERY5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "3a17fd13-0a8e-42ea-a25b-2c76811c07ca",
+  "meta": {
+    "instanceId": "35fdb559a269365838a75ef7f0637433e50004454b8cba8e9dab8bce6c285d11"
+  },
+  "id": "0FjS2JjeHd6ePOAlgZVHL",
+  "tags": [
+    {
+      "updatedAt": "2026-02-06T07:04:06.539Z",
+      "createdAt": "2026-02-06T07:04:06.539Z",
+      "id": "sKkuO21sR68uurmz",
+      "name": "PROJECT"
+    }
+  ]
+}
